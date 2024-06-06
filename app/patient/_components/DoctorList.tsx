@@ -63,21 +63,21 @@ const DayAvailability = ({ day, date, doctors, currentDay }: { day: string, date
                                 </div>
                             </Link>
                             <div className='pt-2 border-t border-gray-400'>
-                                <h3 className='flex gap-2 justify-between items-center'>
-                                    <span className='text-gray-600'>{day.charAt(0).toUpperCase() + day.slice(1)} - {moment(date).format('MMMM Do, YYYY')}</span>
-                                    <span className='font-bold'>Price</span>
-                                </h3>
-                                <div className='py-2 grid grid-cols-2 gap-2'>
-                                    {Array.isArray(doctor[day]) && doctor[day].slice(0, 5).map((time: string, timeIndex: number) => (
-                                        <Link key={timeIndex} href='' className='bg-blue-600 text-white py-1 px-2'>
-                                            {time}
-                                        </Link>
-                                    ))}
-                                    {Array.isArray(doctor[day]) && doctor[day].length > 5 && (
-                                        <Link className='bg-blue-900 text-white py-1 px-2' href={`/patient/doctor/${doctor.user_id}/details`}>More</Link>
-                                    )}
-                                </div>
-                            </div>
+    <h3 className='flex gap-2 justify-between items-center'>
+        <span className='text-gray-600'>{day.charAt(0).toUpperCase() + day.slice(1)} - {moment(date).format('MMMM Do, YYYY')}</span>
+        <span className='font-bold'>Price</span>
+    </h3>
+    <div className='py-2 grid grid-cols-2 gap-2'>
+        {Array.isArray(doctor[day]) && (doctor[day] as string[]).slice(0, 5).map((time: string, timeIndex: number) => (
+            <Link key={timeIndex} href='' className='bg-blue-600 text-white py-1 px-2'>
+                {time}
+            </Link>
+        ))}
+        {Array.isArray(doctor[day]) && (doctor[day] as string[]).length > 5 && (
+            <Link className='bg-blue-900 text-white py-1 px-2' href={`/patient/doctor/${doctor.user_id}/details`}>More</Link>
+        )}
+    </div>
+</div>
                         </div>
                     )
                 ))}
@@ -94,30 +94,30 @@ export default function DoctorList() {
     useEffect(() => {
         const fetchDoctorsAndOverrides = async () => {
             const supabase = createClient();
-
+    
             const { data: availabilityData, error: availabilityError } = await supabase
                 .from("availability")
                 .select("*");
-
+    
             if (availabilityError) {
                 console.error("Error fetching availability data:", availabilityError);
                 return;
             }
-
+    
             const { data: overrideData, error: overrideError } = await supabase
                 .from("overrides")
                 .select("*");
-
+    
             if (overrideError) {
                 console.error("Error fetching override data:", overrideError);
                 return;
             }
-
+    
             const localDoctors = availabilityData.map((doctor: AvailabilityData) => {
                 const localTimes: AvailabilityData = { ...doctor };
                 Object.keys(localTimes).forEach((day) => {
                     if (Array.isArray(localTimes[day])) {
-                        localTimes[day] = localTimes[day].map((time: string) => {
+                        localTimes[day] = (localTimes[day] as string[]).map((time: string) => {
                             const localTime = moment.utc(time).local();
                             return localTime.format('h:mm A');
                         });
@@ -125,16 +125,17 @@ export default function DoctorList() {
                 });
                 return localTimes;
             });
-
+    
             setDoctors(localDoctors);
             setOverrides(overrideData);
-
+    
             const dayOfWeek = moment().format('dddd').toLowerCase();
             setCurrentDay(dayOfWeek);
         };
-
+    
         fetchDoctorsAndOverrides();
     }, []);
+    
 
     const getFilteredDoctors = (day: string, date: string) => {
         return doctors.filter(doctor => {
