@@ -68,12 +68,12 @@ const DayAvailability = ({ day, date, doctors, currentDay }: { day: string, date
                                     <span className='font-bold'>Price</span>
                                 </h3>
                                 <div className='py-2 grid grid-cols-2 gap-2'>
-                                    {doctor[day].slice(0, 5).map((time: string, timeIndex: number) => (
+                                    {Array.isArray(doctor[day]) && doctor[day].slice(0, 5).map((time: string, timeIndex: number) => (
                                         <Link key={timeIndex} href='' className='bg-blue-600 text-white py-1 px-2'>
                                             {time}
                                         </Link>
                                     ))}
-                                    {doctor[day].length > 5 && (
+                                    {Array.isArray(doctor[day]) && doctor[day].length > 5 && (
                                         <Link className='bg-blue-900 text-white py-1 px-2' href={`/patient/doctor/${doctor.user_id}/details`}>More</Link>
                                     )}
                                 </div>
